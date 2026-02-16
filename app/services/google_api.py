@@ -1,11 +1,24 @@
 from datetime import datetime
+from typing import Sequence
 
 from aiogoogle import Aiogoogle
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
-
+from app.models import CharityProject
+from app.repositories import GoogleReportRepository
 
 FORMAT = '%Y/%m/%d %H:%M:%S'
+
+
+async def get_projects_by_completion_rate(
+    session: AsyncSession
+) -> Sequence[CharityProject]:
+    """Возвращает закрытые проекты, отсортированные по скорости закрытия."""
+    repository = GoogleReportRepository(CharityProject)
+    return await repository.get_closed_projects_sorted_by_completion_rate(
+        session
+    )
 
 
 async def create_spreadsheets(wrapper_services: Aiogoogle) -> str:
