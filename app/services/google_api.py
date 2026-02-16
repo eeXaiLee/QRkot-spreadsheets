@@ -52,7 +52,7 @@ async def create_spreadsheets(wrapper_services: Aiogoogle) -> str:
 
 
 async def set_user_permissions(
-    spreadsheetid: str,
+    spreadsheet_id: str,
     wrapper_services: Aiogoogle
 ) -> None:
     """Выдача прав на редактирование личному аккаунту."""
@@ -66,8 +66,48 @@ async def set_user_permissions(
 
     await wrapper_services.as_service_account(
         service.permissions.create(
-            fileId=spreadsheetid,
+            fileId=spreadsheet_id,
             json=permissions_body,
             fields='id'
+        )
+    )
+
+
+async def update_spreadsheets_value(
+    spreadsheet_id: str,
+    projects: Sequence[CharityProject],
+    wrapper_services: Aiogoogle
+) -> None:
+    """Заполнение Google таблицы данными о закрытых проектах."""
+    now_date_time = datetime.now().strftime(FORMAT)
+    service = await wrapper_services.discover('sheets', 'v4')
+
+    table_values = [
+        ['Отчет от', now_date_time],
+        ['Топ проектов по скорости закрытия'],
+        ['Название проекта', 'Время сбора', 'Описание']
+    ]
+
+    for project in projects:
+        collection_time = str(project.close_date - project.create_date)
+
+        new_row = [
+            project.name,
+            collection_time,
+            project.description
+        ]
+        table_values.append(new_row)
+
+    update_body = {
+        'majorDimension': 'ROWS',
+        'values': table_values
+    }
+
+    await wrapper_services.as_service_account(
+        service.spreadsheets.values.update(
+            spreadsheetId=spreadsheet_id,
+            range='A1:C30',
+            valueInputOption='USER_ENTERED',
+            json=update_body
         )
     )
