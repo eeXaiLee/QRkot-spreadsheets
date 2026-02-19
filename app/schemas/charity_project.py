@@ -37,7 +37,7 @@ class CharityProjectUpdate(CharityProjectBase):
 
     @field_validator('name')
     def name_cannot_be_null(cls, value: str | None) -> str | None:
-        """Проверка, что имя не пустое."""
+        """Имя проекта обязательно при обновлении."""
         if value is None or value == '':
             raise ValueError('Имя проекта не может быть пустым!')
         return value
