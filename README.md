@@ -246,8 +246,7 @@ cat-charity-2/
 │ │ ├── base.py # Базовый репозиторий
 │ │ ├── base_investment.py # Репозиторий для инвестиций
 │ │ ├── charity_project.py
-│ │ ├── donation.py
-│ │ └── google_report.py
+│ │ └── donation.py
 │ ├── schemas/
 │ │ ├── charity_project.py
 │ │ ├── donation.py
