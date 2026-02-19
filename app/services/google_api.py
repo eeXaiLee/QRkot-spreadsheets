@@ -1,9 +1,12 @@
 from datetime import datetime
-from typing import Sequence
+from typing import Annotated, Sequence
 
 from aiogoogle import Aiogoogle
+from dependency_injector.wiring import Provide, inject
+from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.containers import Container
 from app.core.config import settings
 from app.models import CharityProject
 from app.repositories import CharityProjectRepository
@@ -11,13 +14,18 @@ from app.repositories import CharityProjectRepository
 FORMAT = '%Y/%m/%d %H:%M:%S'
 
 
+@inject
 async def get_projects_by_completion_rate(
-    session: AsyncSession
+    session: AsyncSession,
+    charity_project_repository: Annotated[
+        CharityProjectRepository,
+        Depends(Provide[Container.charity_project_repository])
+    ]
 ) -> Sequence[CharityProject]:
     """Возвращает закрытые проекты, отсортированные по скорости закрытия."""
-    repository = CharityProjectRepository(CharityProject)
-    return await repository.get_closed_projects_sorted_by_completion_rate(
-        session
+    return await (
+        charity_project_repository.
+        get_closed_projects_sorted_by_completion_rate(session)
     )
 
 
